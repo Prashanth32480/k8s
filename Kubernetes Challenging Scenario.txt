@@ -1,0 +1,250 @@
+Kubernetes Challenging Scenario
+
+Scenario: 
+Service Not Accessible – Pod is Running, but the Application Can’t Be Reached
+
+You’ve deployed your application in Kubernetes. The pod is in the "Running" state, and you've created a service (ClusterIP, NodePort, or LoadBalancer) to expose it. However, when you try to access the application using the service, it doesn’t respond or times out.
+
+This issue can be confusing, especially since the pod seems healthy.
+
+Solution:
+
+1. **Verify the Service Exists and Is Correctly Defined:**
+Check all services:
+kubectl get svc
+
+2. **Inspect the Service Details:**
+kubectl describe svc <service-name>
+
+Look for:
+- Correct port mapping
+- Type (ClusterIP, NodePort, LoadBalancer)
+- Selector (does it match the pod labels?)
+
+3. **Check Endpoints:**
+Services forward traffic only to healthy pods that match their selectors.
+Check if the service has endpoints:
+kubectl get endpoints <service-name>
+
+If no endpoints are listed, it means the service isn’t connected to any pod.
+
+4. **Common Root Causes:**
+- The service selector doesn’t match the pod’s labels.
+- The pod is not marked as "Ready" (failing readiness probes).
+- A NetworkPolicy or firewall is blocking traffic.
+- The container is listening on a different port than the service is exposing.
+
+5. **Resolution Steps:**
+
+**Ensure Pod Labels Are Correct:**
+Check the pod:
+kubectl get pods --show-labels
+
+Ensure it includes:
+metadata:
+ labels:
+ app: myapp
+
+**Match the Service Selector:**
+spec:
+ selector:
+ app: myapp
+
+**Check Pod Readiness:**
+kubectl get pods -o wide
+
+If the pod isn't in the "Ready" state, fix the health or readiness probe.
+
+**Validate Port Mapping in the Service:**
+spec:
+ type: NodePort
+ ports:
+ - port: 80
+ targetPort: 8080
+ nodePort: 30007
+
+Make sure:
+- The container listens on `targetPort`
+- The service forwards requests correctly
+
+**Bonus Tip:**
+Use `curl` or `wget` from inside the cluster (e.g., from another pod) to verify connectivity:
+kubectl run test --rm -it --image=busybox -- /bin/sh
+wget <service-name>:<port>
+
+Key Takeaway: 
+A running pod doesn't guarantee service availability. Always validate:
+- **Label-selector match**
+- **Pod readiness**
+- **Endpoint connectivity**
+- **Correct port exposure**
+
+Understanding how services route traffic and depend on pod labels is essential to debugging these issues quickly.
+
+
+
+----------------------------------
+
+
+1. How would you load balance 3–4 servers running services? Which type of load balancing is preferred and why? 
+
+2. In Nginx, how do you persist a client connected to a specific server? 
+
+3. With sticky session & IP hash enabled — what happens if a server goes down? 
+
+4. How does header management work in Nginx? 
+
+5. Some APIs are unsecured behind an API Gateway — how would you secure them? 
+
+6. How does ArgoCD work in a CI/CD pipeline, and why is it used? 
+
+7. As a DevOps engineer, how do you detect and measure security vulnerabilities for our company? 
+
+8. How do you manage different environments (dev, staging, prod) in CI/CD?
+
+--------------------------------------------------------------------
+
+
+✅ 1. Scenario: Pod CrashLoopBackOff
+Q: A pod keeps restarting with CrashLoopBackOff. How would you troubleshoot this issue?
+Solution:
+• Run kubectl describe pod to review events and diagnose the issue.
+• Use kubectl logs --previous to inspect crash logs.
+• Check the container’s liveness probes and image configurations for potential errors.
+• Validate environment variables and secrets to ensure they are correctly set.
+
+✅ 2. Scenario: Rolling Update Gone Wrong
+Q: After deploying a new version, users report failures. How would you respond?
+Solution:
+• Execute kubectl rollout undo deployment to revert to the previous stable version.
+• Review the deployment’s status with kubectl rollout status to monitor the update process.
+• Confirm that readiness and liveness probes are configured correctly to prevent faulty pods from joining the load balancer.
+
+✅ 3. Scenario: App Needs Persistent Storage
+Q: Your application requires persistent storage. How would you configure the pod specification?
+Solution:
+• Create a PersistentVolume (PV) and PersistentVolumeClaim (PVC) for storage management.
+• Attach the PVC to the pod specification under the volumes and volumeMounts sections.
+• Choose the appropriate storage class (e.g., gp2 for AWS, azurefile for Azure) based on workload requirements.
+
+✅ 4. Scenario: Multi-Environment Deployments
+Q: How would you manage Kubernetes deployments across dev, staging, and production environments?
+Solution:
+• Leverage Helm or Kustomize to parameterize your manifests for environment-specific configurations.
+• Maintain environment-specific values, such as values-dev.yaml, in version control.
+• Use namespaces or separate clusters to isolate resources for each environment, ensuring proper access control.
+
+✅ 5. Scenario: Pod Can’t Reach External Services
+Q: Your pod is unable to access external APIs. What steps would you take to investigate?
+Solution:
+• Verify the network policies in place to ensure no restrictions are blocking egress traffic.
+• Test DNS resolution inside the pod using tools like nslookup or dig to ensure proper connectivity.
+• Confirm the node’s egress and firewall rules to rule out any external network issues.
+• Check the service account and proxy settings to ensure the pod has the correct permissions and network configuration.
+
+-----------------------------------------------
+
+Here are some real-time Kubernetes troubleshooting scenarios that you might encounter in production environments, along with how to approach and resolve them.
+
+🛑 Scenario 1: Pod CrashLoopBackOff
+Symptoms:
+kubectl get pods
+Shows:
+my-app-7c77c7f9bf-vbcnf 0/1 CrashLoopBackOff 6 3m
+Troubleshooting Steps:
+Check logs:
+kubectl logs my-app-7c77c7f9bf-vbcnf
+Check events:
+kubectl describe pod my-app-7c77c7f9bf-vbcnf
+Common Causes:
+Application crashes due to code/logic error.
+Missing environment variables.
+Init container failure.
+Failing to connect to DB or dependent service.
+Fix:
+Fix config, env vars, or app logic.
+If it’s a missing secret:
+kubectl describe pod <pod-name> | grep Secret
+
+🚫 Scenario 2: Pending Pods
+Symptoms:
+kubectl get pods
+Shows:
+my-app-5b4cdcd5cd-j2s7x 0/1 Pending 0 5m
+Troubleshooting Steps:
+Describe the pod:
+kubectl describe pod my-app-5b4cdcd5cd-j2s7x
+Look for:
+Insufficient resources (CPU, Memory).
+Node affinity/taints preventing scheduling.
+PVC unbound.
+Fix:
+Adjust resource requests/limits.
+Remove or adjust node selectors/affinity.
+Check storage class availability.
+
+🌐 Scenario 3: Service Not Accessible
+Symptoms:
+Pod is running, but the app is not accessible via service.
+Troubleshooting Steps:
+Verify service:
+kubectl get svc my-service
+Describe service:
+kubectl describe svc my-service
+Check if selectors match pod labels.
+Use port-forward to test connectivity:
+kubectl port-forward svc/my-service 8080:80
+Check DNS resolution inside the cluster:
+kubectl exec -it <pod-name> -- nslookup my-service
+Fix:
+Update service selectors.
+Fix labels on pods.
+Make sure app is listening on the right port.
+
+🧱 Scenario 4: Node Not Ready
+Symptoms:
+kubectl get nodes
+Shows:
+node-1 NotReady ...
+Troubleshooting Steps:
+Check node status:
+kubectl describe node node-1
+Common causes:
+Disk pressure.
+Network issues.
+kubelet down.
+Cloud provider issues.
+Fix:
+SSH into node, check kubelet and docker/containerd logs.
+Check for resource pressure:
+top, df -h, free -m
+Restart kubelet.
+
+💾 Scenario 5: PVC Stuck in Pending
+Symptoms:
+kubectl get pvc
+Shows:
+my-pvc Pending ...
+Troubleshooting Steps:
+Check if a storage class is defined:
+kubectl get sc
+Check PVC and PV:
+kubectl describe pvc my-pvc
+Fix:
+Create a matching PV manually (if using static provisioning).
+Ensure your cloud provider supports dynamic provisioning with the SC used.
+
+📈 Scenario 6: High CPU/Memory Usage
+Symptoms:
+Pod gets OOMKilled or throttled.
+Node resource saturation.
+Troubleshooting Steps:
+View metrics (if metrics-server is installed):
+kubectl top pod
+kubectl top node
+Check events for resource-related kills:
+kubectl describe pod <pod>
+Fix:
+Tune requests and limits.
+Scale up replicas.
+Optimize application.

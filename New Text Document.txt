@@ -1,0 +1,173 @@
+Kubernetes Challenging Scenario
+
+Scenario: 
+Service Not Accessible – Pod is Running, but the Application Can’t Be Reached
+
+You’ve deployed your application in Kubernetes. The pod is in the "Running" state, and you've created a service (ClusterIP, NodePort, or LoadBalancer) to expose it. However, when you try to access the application using the service, it doesn’t respond or times out.
+
+This issue can be confusing, especially since the pod seems healthy.
+
+Solution:
+
+1. **Verify the Service Exists and Is Correctly Defined:**
+Check all services:
+kubectl get svc
+
+2. **Inspect the Service Details:**
+kubectl describe svc <service-name>
+
+Look for:
+- Correct port mapping
+- Type (ClusterIP, NodePort, LoadBalancer)
+- Selector (does it match the pod labels?)
+
+3. **Check Endpoints:**
+Services forward traffic only to healthy pods that match their selectors.
+Check if the service has endpoints:
+kubectl get endpoints <service-name>
+
+If no endpoints are listed, it means the service isn’t connected to any pod.
+
+4. **Common Root Causes:**
+- The service selector doesn’t match the pod’s labels.
+- The pod is not marked as "Ready" (failing readiness probes).
+- A NetworkPolicy or firewall is blocking traffic.
+- The container is listening on a different port than the service is exposing.
+
+5. **Resolution Steps:**
+
+**Ensure Pod Labels Are Correct:**
+Check the pod:
+kubectl get pods --show-labels
+
+Ensure it includes:
+metadata:
+ labels:
+ app: myapp
+
+**Match the Service Selector:**
+spec:
+ selector:
+ app: myapp
+
+**Check Pod Readiness:**
+kubectl get pods -o wide
+
+If the pod isn't in the "Ready" state, fix the health or readiness probe.
+
+**Validate Port Mapping in the Service:**
+spec:
+ type: NodePort
+ ports:
+ - port: 80
+ targetPort: 8080
+ nodePort: 30007
+
+Make sure:
+- The container listens on `targetPort`
+- The service forwards requests correctly
+
+**Bonus Tip:**
+Use `curl` or `wget` from inside the cluster (e.g., from another pod) to verify connectivity:
+kubectl run test --rm -it --image=busybox -- /bin/sh
+wget <service-name>:<port>
+
+Key Takeaway: 
+A running pod doesn't guarantee service availability. Always validate:
+- **Label-selector match**
+- **Pod readiness**
+- **Endpoint connectivity**
+- **Correct port exposure**
+
+Understanding how services route traffic and depend on pod labels is essential to debugging these issues quickly.
+
+
+-----------------
+
+My Solo Kubernetes Journey 😊 
+
+For the past few months, I’ve been the only DevOps engineer at my company. I took on the task of containerizing our application and deploying it on Kubernetes in AWS EKS. No mentors, no existing playbook—just documentation, trial and error, and persistence.
+
+1. Deployment and Autoscaling
+Created a Deployment manifest to run two replicas of the app.
+
+Added a HorizontalPodAutoscaler targeting 80% CPU utilization, with minReplicas set to 2 and maxReplicas set to 3
+
+2. Replica Mismatch
+Although the manifest specified two replicas, only one pod was running.
+
+Discovered the HPA had defaulted to minReplicas of 1 because the updated manifest wasn’t applied correctly.
+
+3. Metrics Server Issues
+HPA logs showed errors like "FailedGetResourceMetric" when the metrics-server was unhealthy.
+
+Reinstalled the metrics-server and verified CPU metrics with kubectl top pods.
+
+4. Jenkins Pipeline Limitation
+The CI/CD pipeline only patched the deployment image, without applying the full Kubernetes manifests.
+
+Fixed this by combining kubectl patch for rolling updates and kubectl apply -f to sync HPA, replica settings, and other configurations.
+
+5. AWS EKS Setup
+Used eksctl to provision an EKS cluster with managed node groups in private subnets.
+
+Enabled IAM Roles for Service Accounts (IRSA) to grant pods least-privilege access to AWS resources.
+
+Installed the AWS Load Balancer Controller with Helm to manage Ingress and ALBs.
+
+Deployed the cluster autoscaler to automatically adjust node counts based on pod scheduling needs.
+
+Configured Ingress resources with Route 53 DNS and ACM certificates for HTTPS.
+
+Set up TargetGroupBinding for integrating custom ALB routing logic.
+
+Faced 503 errors due to missing health checks and pod readiness—but fixed them step by step.
+
+Key Takeaways:
+Always verify that your applied manifests match your Git repository: use kubectl describe and kubectl apply.
+
+Keep your metrics-server healthy to ensure the HPA can make correct scaling decisions.
+
+In CI/CD, combine image patches for rolling updates with manifest applies to keep infrastructure in sync.
+
+Automate with care: each automation step should be tested and monitored.
+
+Don’t hesitate to get hands-on when something breaks—reading logs and digging into YAML is part of the process.
+
+I welcome any feedback or tips from fellow solo DevOps engineers. What challenges did you face, and how did you solve them? 
+
+Also, I’d love your suggestions on what metrics, tools, or best practices I should adopt to monitor and strengthen my Kubernetes setup and make it even more robust going forward.
+
+
+----------------------
+
+
+1️⃣Why might a Kubernetes service fail to resolve another service using DNS?
+Ans: Check the CoreDNS status, verify the service name and namespace, ensure the correct DNS policy is set (ClusterFirst), and review any network policies or firewalls that might be blocking DNS traffic.
+
+2️⃣What is an Error Budget, and how does it guide release decisions?
+Ans: It’s the max allowable downtime or failure within an SLO. If you’ve used it up, no more risky deployments. It forces balance between velocity and reliability.
+
+3️⃣How do you design a CI/CD pipeline for microservices?
+Ans: Think loosely coupled: independent build, test, and deploy stages. Add canary deployments, automated rollbacks, and integration with observability tools.
+
+4️⃣What are golden signals, and why are they important?
+Ans: Latency, traffic, errors, saturation. These 4 metrics help you detect and debug issues quickly in distributed systems.
+
+5️⃣How do you handle secrets in your CI/CD pipeline?
+Ans: Never commit them. Use secret managers (Vault, AWS Secrets Manager, GitHub Encrypted Secrets) and inject them during runtime.
+
+6️⃣What happens when you scale a StatefulSet in Kubernetes?
+Ans: Unlike Deployments, each pod in a StatefulSet has a persistent identity. Scaling needs extra care with storage volumes and service endpoints.
+
+7️⃣Can infrastructure be immutable and still be scalable?
+Ans: Yes! That’s the whole point. Tools like Terraform + image baking (e.g., Packer) allow infra to scale via prebuilt artifacts, not patching live systems.
+
+8️⃣What’s your approach to zero-downtime deployments?
+Ans: Blue-green, canary, or rolling updates with health checks + circuit breakers. Add feature flags for extra control.
+
+9️⃣What are some anti-patterns in monitoring and alerting?
+Ans: Too many alerts, alerting on symptoms not causes, or missing business metrics entirely. Alert fatigue is real.
+
+1️⃣0️⃣How do you troubleshoot a failed deployment fast?
+Ans: Start from logs, then metrics, then traces. Use a structured observability stack like ELK, Prometheus + Grafana, or OpenTelemetry.
