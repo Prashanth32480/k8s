@@ -1,0 +1,29 @@
+What are the Stateful applications?
+
+Stateful applications are those applications that contain the previous states or data of the applications. If the applications restart or move to other environments then, the data and the state of the applications still exist.
+Examples of Stateful applications includes PostgreSQL, MySQL, messages queues.
+These applications ensures that the data, application reliability, and state of the applications will be taken care of by the StatefulSets Object in Kubernetes.
+
+
+
+● Identity and Stable Network hostnames: StatefulSets are used for those applications that require stable network identity and hostnames. Whenever the pod is created, it gets a unique name, an ordinal index appended to its name. For example, the pod name looks like web-1, web-2, web-3, and so on.
+
+● Order deployment and Scaling: StatefulSets deploy the pods in sequential order. If you observe in deployment, the multiple pods in replicas are created at one time. But In StatefulSets, each pod will be created once the previous pod is created. If pods are deleted, the newest created pod will be deleted first which means, that to delete the pod StatefulSets follows the reverse order.
+
+● Data Persistence: StatefulSets are used for those applications that require data persistence such as databases. StatefulSets allow to attachment and mount of the permanent volumes to the disk. So, if any pod is rescheduled or restarted it will have the all data.
+
+● Headless Services: StatefulSets have one more rich feature which is Headless Services. StatefulSets can be associated with the headless services that provide the DNS for each pod’s hostnames. This will help to communicate with the specific pods. Deployment
+
+● Scalability and Rolling updates: Deployments are often used for stateless applications. Deployments provide the replicas and no downtime feature.
+
+● No Stable Hostnames: Deployments do not provide the feature of stable hostnames which means, that if the pod is created then it will have a randomly generated name.
+
+
+
+Key Features and Facts of StatefulSets:
+1. StatefulSets provides the Order pod creation which provides the unique name to ach pod in a predictable order such as web-1, web-2, and so on.
+2. StatefulSets provides the Stable Network Identity which makes it easy to connect ith the pods.
+3. StatefulSets provides the Data Persistence which stores the data in the databases and henever the pod is restarted or rescheduled, the pods get the same persistent ata.
+4. StatefulSets provides the PV and PVC to provide the persistent storage to tatefulSets pods.
+5. StatefulSets provides the Backup and Recovery features which are very crucial for
+maintaining data integrity with StatefulSets.

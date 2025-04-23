@@ -1,0 +1,78 @@
+-------------------------------
+Kubernetes:
+
+- What is a Pod in Kubernetes?
+- How do you scale a deployment in Kubernetes?
+- What is a Kubernetes Service? How does it provide networking within a cluster?
+- Explain the concept of a Kubernetes Ingress.
+- Explain Architecture
+===============
+✔𝗣𝗼𝗱: A Pod is the smallest and most basic unit in Kubernetes. It represents a single instance of a running process or a set of tightly coupled processes running together on a node. Pods are scheduled and managed by Kubernetes.
+
+✔𝗖𝗹𝘂𝘀𝘁𝗲𝗿: A cluster is a collection of nodes that function as a single entity. It represents every element of the Kubernetes system, including the worker nodes and the control plane parts.
+
+✔𝗡𝗼𝗱𝗲: A Node is a Kubernetes cluster's worker computer. Either a real or virtual machine may be used. The operating and management of the pods is done by the nodes.
+
+✔𝗖𝗼𝗻𝘁𝗿𝗼𝗹-𝗣𝗹𝗮𝗻𝗲: The Kubernetes cluster is managed and controlled by a group of components known as the control plane. It contains the controller manager, scheduler, etcd, and API server.
+
+✔ 𝗲𝘁𝗰𝗱: Kubernetes uses the distributed key-value store etcd to store configuration and cluster data. For storing cluster state, it offers a dependable and highly accessible data store.
+
+✔𝗦𝗰𝗵𝗲𝗱𝘂𝗹𝗲𝗿: The Scheduler is in charge of allocating pods to nodes in accordance with resource needs, node availability, and other limitations. It selects the appropriate node for scheduling a pod.
+
+✔𝗖𝗼𝗻𝘁𝗿𝗼𝗹𝗹𝗲𝗿-𝗠𝗮𝗻𝗮𝗴𝗲𝗿: A group of controllers known as the Controller Manager which manages various cluster components. The Node Controller, Replication Controller, and Service Controller are a few examples. They make sure that the cluster's desired and actual states are same.
+
+✔𝗦𝗲𝗿𝘃𝗶𝗰𝗲: A logical set of pods and a policy for accessing them are defined by a service, which is an abstraction. For the pods behind it, it offers a reliable network endpoint (IP address) and load balancing.
+
+✔𝗥𝗲𝗽𝗹𝗶𝗰𝗮𝗦𝗲𝘁: ReplicaSets are Kubernetes objects that guarantee a certain number of pod replicas are active at all times. Scaling and managing the number of pods for a certain application are done using it.
+
+✔𝗡𝗮𝗺𝗲𝘀𝗽𝗮𝗰𝗲: The cluster resources can be split up into virtual clusters using namespaces. It gives names a range and enables many teams or projects to share the same physical cluster while isolating their resources.
+-------------------------------------------------------------------------------------------------------------------------
+
+
+Kubernetes POD Troubleshooting Tactics Sequence 👇
+
+𝟭. 𝗖𝗵𝗲𝗰𝗸 𝗹𝗼𝗴𝘀:
+Use 𝘬𝘶𝘣𝘦𝘤𝘵𝘭 𝘭𝘰𝘨𝘴 <𝘱𝘰𝘥_𝘯𝘢𝘮𝘦>
+
+𝟮. 𝗔𝗻𝗮𝗹𝘆𝘇𝗲 𝗣𝗼𝗱 𝗦𝘁𝗮𝘁𝘂𝘀:
+Use 𝘬𝘶𝘣𝘦𝘤𝘵𝘭 𝘨𝘦𝘵 𝘱𝘰𝘥 <𝘱𝘰𝘥_𝘯𝘢𝘮𝘦> and examine status fields
+
+𝟯. 𝗗𝗲𝘀𝗰𝗿𝗶𝗯𝗲 𝗣𝗼𝗱:
+Execute 𝘬𝘶𝘣𝘦𝘤𝘵𝘭 𝘥𝘦𝘴𝘤𝘳𝘪𝘣𝘦 𝘱𝘰𝘥 <𝘱𝘰𝘥_𝘯𝘢𝘮𝘦>
+
+𝟰. 𝗩𝗲𝗿𝗶𝗳𝘆 𝗣𝗼𝗱 𝗖𝗼𝗻𝗳𝗶𝗴𝘂𝗿𝗮𝘁𝗶𝗼𝗻:
+Review the pod's YAML configuration
+
+𝟱. 𝗖𝗵𝗲𝗰𝗸 𝗘𝘃𝗲𝗻𝘁𝘀:
+Run 𝘬𝘶𝘣𝘦𝘤𝘵𝘭 𝘨𝘦𝘵 𝘦𝘷𝘦𝘯𝘵𝘴
+
+𝟲. 𝗩𝗮𝗹𝗶𝗱𝗮𝘁𝗲 𝗖𝗼𝗻𝘁𝗮𝗶𝗻𝗲𝗿 𝗜𝗺𝗮𝗴𝗲𝘀:
+Check image availability and version in pod YAML
+
+𝟳. 𝗥𝗲𝘀𝘁𝗮𝗿𝘁 𝗣𝗼𝗱:
+𝘬𝘶𝘣𝘦𝘤𝘵𝘭 𝘳𝘰𝘭𝘭𝘰𝘶𝘵 𝘳𝘦𝘴𝘵𝘢𝘳𝘵 𝘥𝘦𝘱𝘭𝘰𝘺𝘮𝘦𝘯𝘵/<𝘥𝘦𝘱𝘭𝘰𝘺𝘮𝘦𝘯𝘵_𝘯𝘢𝘮𝘦>
+
+𝟴. 𝗥𝗲𝘃𝗶𝗲𝘄 𝗦𝗲𝗿𝘃𝗶𝗰𝗲 𝗗𝗲𝗽𝗲𝗻𝗱𝗲𝗻𝗰𝗶𝗲𝘀:
+Analyze dependencies in YAML or documentation
+
+𝟵. 𝗖𝗵𝗲𝗰𝗸 𝗡𝗲𝘁𝘄𝗼𝗿𝗸 𝗖𝗼𝗻𝗻𝗲𝗰𝘁𝗶𝘃𝗶𝘁𝘆:
+Get a shell to the running container:
+𝘬𝘶𝘣𝘦𝘤𝘵𝘭 𝘦𝘹𝘦𝘤 -𝘪𝘵 <𝘱𝘰𝘥_𝘯𝘢𝘮𝘦> -- 𝘴𝘩
+
+ping or curl to test network connectivity:
+𝘱𝘪𝘯𝘨 <𝘵𝘢𝘳𝘨𝘦𝘵_𝘩𝘰𝘴𝘵>
+𝘤𝘶𝘳𝘭 <𝘵𝘢𝘳𝘨𝘦𝘵_𝘶𝘳𝘭>
+
+𝟭𝟬. 𝗜𝗻𝘀𝗽𝗲𝗰𝘁 𝗥𝗲𝘀𝗼𝘂𝗿𝗰𝗲 𝗨𝘀𝗮𝗴𝗲:
+Utilize 𝘬𝘶𝘣𝘦𝘤𝘵𝘭 𝘵𝘰𝘱 𝘱𝘰𝘥 <𝘱𝘰𝘥_𝘯𝘢𝘮𝘦>
+
+11. Check probes
+
+12. Check changes between last deployment and current version
+
+13. Check node affinity
+
+14. Check cluster resources
+
+15. Check cluster dump for admission control errors if any
+And most importantly take a coffee break and come back fresh :)

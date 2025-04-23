@@ -1,0 +1,91 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+-Kubernetes Cluster
+
+-Namespace
+
+-Control Plane
+
+-Kubernetes architecture
+
+	-Master Node
+		
+		-API Serve
+		-ETCD
+		-Scheduler
+		-Kube controller manager
+	
+	-Worker Node
+		
+		-Kubelet
+		-Kube-Proxy
+		-pods
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-Containers( container environments, Images, Run-time class, Container lifecycle hook)
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+-Namespace
+	-We can create a namespace by two ways 
+		1). Through CMD( kubectl create namespace namespace_name)
+		2). By using yaml file
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-Workloads
+
+	-Deployments
+	-Pods
+	-Replica-Sets
+	-Daemon-Sets
+	-Stateful-Sets
+	-Jobs
+	-Crown-Jobs
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+-Services and Ingress
+	-we can create services by two ways
+		-1). Through yaml files ( ClusterIp, NodePort, LoaBalancer)
+		-2). By creating directly through the azure AKS by providing all the required configuration
+
+	-Requirements that are required to create a ingress controller
+		- need the azure keyvault and a primary certificate 
+		- need the azure DNS-zone and Subdomain name 
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-Storages
+	-Persistence volumes
+	-Persistence volumes Claims 
+	-Storage Classes
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+-Configuration
+	-Configmaps
+	-Secrets 
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+-"Node pools"
+	-Here we are able to see all the nodes that are available in our cluster.
+	-we have one more option that to create a node pool (where we can manage a set of nodes by using this "Node pools" based on operations )
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-Cluster configuration
+	- Here we can upgrade our cluster upgradation(patch, minor and major)
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-Application scaling
+	-KEDA
+	(KEDA (Kubernetes-based Event Driven Autoscaler) scales your workloads based on events in external applications or triggers. Currently, the Azure                  Portal for AKS supports the following triggers: Azure Service Bus, Memory, CPU & Cron. In order to scale with KEDA, you must create a scaled object.)
+
+	-here we will get 3 options
+	1). creating KEDA
+	2). Scaled Jobs
+	3). Scaled Objects 
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------

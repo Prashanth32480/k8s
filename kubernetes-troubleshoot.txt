@@ -1,0 +1,232 @@
+Here are some common Kubernetes issues and their resolutions Part 1:
+
+🚨 Issue: Pods in CrashLoopBackOff State
+🔍 Cause: Application errors, missing configurations, or resources.
+🔧 Resolution: Check pod logs using kubectl logs [pod-name] to identify the error. Ensure configurations are correct and resources (like memory and CPU) are properly allocated.
+
+⚠️ Issue: Persistent Volume Claims (PVC) Stuck in Pending State
+🔍 Cause: Insufficient storage or misconfigured StorageClass.
+🔧 Resolution: Verify storage availability and ensure the StorageClass is correctly defined. Use kubectl describe pvc [pvc-name] for detailed error messages.
+
+❗ Issue: Service Unreachable
+🔍 Cause: Incorrect service configuration or network policies.
+🔧 Resolution: Check the service and endpoint details with kubectl describe svc [service-name]. Ensure network policies allow traffic to the service.
+
+⏳ Issue: High Pod Startup Latency
+🔍 Cause: Resource constraints or node performance issues.
+🔧 Resolution: Review resource requests and limits for pods. Consider increasing node resources or scaling the cluster.
+
+🔄 Issue: Rolling Update Failures
+🔍 Cause: Incompatible application versions or insufficient replicas.
+🔧 Resolution: Ensure backward compatibility of new versions. Increase the number of replicas to maintain availability during updates.
+
+🔍 Issue: Node Not Ready
+🔍 Cause: Node resource exhaustion, network issues, or kubelet failure.
+🔧 Resolution: Check node status with kubectl describe node [node-name]. Investigate kubelet logs and ensure node resources are sufficient.
+
+🔧 Issue: Container Image Pull Errors
+🔍 Cause: Incorrect image name, tag, or registry authentication issues.
+🔧 Resolution: Verify the image name and tag. Ensure credentials for private registries are configured correctly in Kubernetes secrets.
+
+📊 Issue: Metrics Server Not Working
+🔍 Cause: Incorrect installation or configuration.
+🔧 Resolution: Ensure the Metrics Server is deployed correctly. Check logs for errors using kubectl logs -n kube-system [metrics-server-pod].
+
+
+_____________________________________________________________________________________________
+
+Key Components of Kubernetes
+
+⭐ Master Node (Control Plane):
+
+API Server: Acts as the front-end for the Kubernetes control plane. It's the entry point for all the REST commands used to control the cluster.
+
+etcd: A key-value store used for storing all the cluster data, which includ
+es configuration data, state, and metadata.
+
+Controller Manager: Handles the various controllers that regulate the state of the cluster (e.g., node controller, replication controller).
+
+Scheduler: Assigns workloads to specific nodes in the cluster based on resource availability and other constraints.
+
+🔧 Worker Nodes:
+
+Kubelet: An agent running on each node, ensuring containers are running in a Pod as expected.
+
+Kube-Proxy: Maintains network rules on nodes, allowing network communication to your Pods from inside or outside the cluster.
+
+Container Runtime: Software that runs containers (e.g., Docker, containerd).
+
+
+🔹 Pods:
+
+The smallest and simplest Kubernetes object. A Pod represents a single instance of a running process in your cluster and can contain one or more containers.
+
+How It All Works Together
+
+💡 User Interaction: Users interact with the Kubernetes cluster using the API server (usually via kubectl).
+🚀 API Server: Processes requests and updates the state in etcd.
+🔄 Controller Manager: Monitors the state in etcd and makes sure the current state matches the desired state by managing controllers.
+📅 Scheduler: Assigns new pods to appropriate nodes based on resource availability and other constraints.
+💻 Worker Nodes: Each worker node runs the necessary components (Kubelet, Kube-Proxy, and Container Runtime) to manage and run the containers.
+📦 Pods and Containers: Pods encapsulate containers, which run the actual application processes.
+
+
+
+Here are some common pod issues in Kubernetes and their resolutions:
+
+1. CrashLoopBackOff
+Issue: Pods keep crashing and restarting.
+
+Resolution:
+
+💡 Check logs: Use kubectl logs <pod-name> to check the application logs for errors.
+💡 Describe the pod: Use kubectl describe pod <pod-name> to get more detailed information about the pod's state and recent events.
+💡 Resource limits: Ensure the pod has enough CPU and memory. Adjust resources.requests and resources.limits in the pod spec if necessary.
+💡 Health checks: Ensure your readiness and liveness probes are correctly configured to reflect the application's state.
+
+2. ImagePullBackOff
+Issue: Kubernetes is unable to pull the container image.
+
+Resolution:
+
+🔍 Check image name: Ensure the image name and tag are correct.
+🔍 Check image registry: Ensure the image is available in the specified container registry.
+🔍 Credentials: If the image is in a private registry, make sure the proper image pull secret is configured and associated with the pod.
+🔍 Command: Use kubectl describe pod <pod-name> to see the exact error message related to image pulling.
+
+3. OOMKilled (Out of Memory)
+Issue: Pods are being killed due to running out of memory.
+
+Resolution:
+
+🛠️ Resource limits: Set appropriate resources.requests and resources.limits for memory in the pod spec.
+🛠️ Memory leaks: Check your application for memory leaks or inefficiencies.
+🛠️ Monitoring: Use tools like Prometheus and Grafana to monitor memory usage and adjust the resources accordingly.
+
+4. Pending
+Issue: Pods remain in the "Pending" state and are not scheduled.
+
+Resolution:
+
+⏳ Resource availability: Ensure there are enough resources (CPU, memory) available in the cluster to schedule the pod. Check with kubectl describe node.
+⏳ Node selectors and affinities: Verify that any node selectors, affinities, or taints and tolerations are correctly configured and match available nodes.
+⏳ Cluster capacity: If the cluster is running out of resources, consider scaling up the cluster by adding more nodes.
+
+5. Node NotReady
+Issue: Pods are not scheduled because nodes are in the "NotReady" state.
+
+Resolution:
+
+🔧 Node status: Check the status of nodes with kubectl get nodes.
+🔧 Kubelet status: Ensure the kubelet service is running on the node.
+🔧 Network issues: Check for network connectivity issues between the node and the control plane.
+🔧 Node health: Investigate node-specific issues such as disk pressure, memory pressure, or PID pressure.
+
+______________________________________________
+
+1. `kubectl get pods`: lists all the running pods in the current namespace.
+
+2. `kubectl create deployment <deployment-name> --image=<image-name>`: creates a new deployment with the specified name and image.
+
+3. `kubectl expose deployment <deployment-name> --port=<port-number>`: creates a new service for the specified deployment and exposes it on the specified port.
+
+4. `kubectl scale deployment <deployment-name> --replicas=<number-of-replicas>`: scales the specified deployment to the specified number of replicas.
+
+5. `kubectl delete deployment <deployment-name>`: deletes the specified deployment.
+
+6. `kubectl apply -f <filename>`: applies the configuration file specified by the filename.
+
+7. `kubectl logs <pod-name>`: shows the logs for the specified pod.
+
+8. `kubectl exec -it <pod-name> -- /bin/bash`: opens a shell in the specified pod.
+
+9. `kubectl port-forward <pod-name> <local-port>:<remote-port>`: forwards traffic from the specified local port to the specified remote port on the specified pod.
+
+10. `kubectl describe <resource-type> <resource-name>`: provides detailed information about the specified resource.
+
+11. `kubectl get nodes`: lists all the nodes in the cluster.
+
+12. `kubectl get services`: lists all the services in the current namespace.
+
+13. `kubectl get deployments`: lists all the deployments in the current namespace.
+
+14. `kubectl get configmaps`: lists all the configmaps in the current namespace.
+
+15. `kubectl get secrets`: lists all the secrets in the current namespace.
+
+16. `kubectl apply -f <directory>`: applies the configuration files in the specified directory.
+
+17. `kubectl rollout status deployment <deployment-name>`: shows the status of the specified deployment rollout.
+
+18. `kubectl rollout history deployment <deployment-name>`: shows the revision history of the specified deployment.
+
+19. `kubectl edit <resource-type> <resource-name>`: opens the specified resource in the default editor.
+
+20. `kubectl top <resource-type>`: shows the resource usage statistics for the specified resource type.
+
+21. `kubectl create namespace <namespace-name>`: creates a new namespace with the specified name.
+
+22. `kubectl get namespaces`: lists all the namespaces in the cluster.
+
+23. `kubectl config get-contexts`: lists all the contexts in the Kubernetes configuration file.
+
+24. `kubectl config set-context <context-name> --namespace=<namespace-name>`: sets the namespace for the specified context.
+
+25. `kubectl apply -f <url>`: applies the configuration file at the specified URL.
+
+26. `kubectl rollout undo deployment <deployment-name>`: undoes the last rollout of the specified deployment.
+
+27. `kubectl delete pod <pod-name>`: deletes the specified pod.
+
+28. `kubectl delete service <service-name>`: deletes the specified service.
+
+29. `kubectl delete namespace <namespace-name>`: deletes the specified namespace.
+
+30. ‘kubectl config use-context’
+_________________________________________________________________________________
+
+1. Question: How do you handle rolling updates in Kubernetes without downtime?
+
+ Answer: Rolling updates in Kubernetes can be achieved by updating the deployment's image. Kubernetes orchestrates the rollout by creating new pods with the updated image and gradually replacing the old ones, ensuring zero downtime.
+
+
+2. Question: How do you troubleshoot networking issues in a Kubernetes cluster?
+
+ Answer: Troubleshooting networking in Kubernetes involves checking the configuration of services, endpoints, and network policies. Tools like `kubectl`, `kube-proxy`, and network plugins such as Calico or Flannel can aid in diagnosing and resolving issues.
+
+
+3. Question: Explain the concept of persistent storage in Kubernetes and its importance.
+
+ Answer: Persistent storage allows data to persist beyond the lifecycle of individual pods. Kubernetes provides various storage options, such as PersistentVolume (PV) and PersistentVolumeClaim (PVC), enabling stateful applications to store and retrieve data reliably.
+
+4. Question: How do you secure sensitive data within a Kubernetes cluster?
+
+ Answer: Securing sensitive data involves using Kubernetes secrets to store confidential information such as passwords, API keys, and certificates. Additionally, implementing RBAC (Role-Based Access Control) and network policies helps control access to resources and limit exposure.
+
+5. Question: Discuss the advantages and disadvantages of using Helm for managing Kubernetes applications.
+
+ Answer: Helm simplifies the packaging, deployment, and management of Kubernetes applications through charts. While Helm streamlines the deployment process and promotes reusability, managing dependencies and maintaining chart versions can pose challenges.
+
+6. Question: How do you monitor Kubernetes clusters and applications?
+
+ Answer: Monitoring Kubernetes clusters involves collecting metrics from various components, including nodes, pods, and containers. Tools like Prometheus, Grafana, and Kubernetes-native solutions like Kubernetes Events and Metrics Server provide insights into cluster health and performance.
+
+7. Question: Describe a scenario where you would use Kubernetes StatefulSets instead of Deployments.
+
+ Answer: StatefulSets are suitable for stateful applications that require stable, unique identities and persistent storage. Examples include databases (e.g., MySQL, PostgreSQL) and messaging queues (e.g., Kafka). StatefulSets ensure ordered deployment and scaling, along with stable network identities and persistent volumes.
+
+
+_________________________________
+
+Kubernetes Questions for Experienced
+1.    How do you create and run a container in Kubernetes?
+2.    What command would you use to deploy a new pod in Kubernetes?
+3.    How can you verify that a newly created pod is running correctly in Kubernetes?
+4.    What are some common issues you might encounter when spinning up a container in Kubernetes and how do you troubleshoot them?
+5.    How do you expose a container running in Kubernetes to external traffic?
+ 
+6.    What are taints and tolerations in Kubernetes and how do they work?
+7.    How can you use taints and tolerations to control pod placement on nodes?
+8.    What is the difference between NoSchedule, PreferNoSchedule, and NoExecute taints?
+9.    Can you describe a scenario where using taints and tolerations would be necessary?
+10. How do you apply a taint to a node and a toleration to a pod in Kubernetes?
